@@ -1,0 +1,16 @@
+application:
+  name: docsgpt
+  pods:
+  - name: app
+    image: ghcr.io/arc53/docsgpt:latest
+    path: /
+    servicePorts:
+    - 5001
+    vars:
+      LLM_PROVIDER: openai
+      API_KEY: placeholder
+      EMBEDDINGS_KEY: placeholder
+    volumes:
+    - name: docsgpt-data
+      mountPath: /app/application/uploads
+      size: 5Gi
