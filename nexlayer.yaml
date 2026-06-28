@@ -4,6 +4,7 @@ application:
   - name: frontend
     image: arc53/docsgpt-fe:latest
     path: /
+    command: sh -c "printf 'VITE_ALLOWED_HOSTS=relaxed-weasel-docsgpt.cloud.nexlayer.ai\n' > /app/.env.development.local && exec npm run dev -- --host"
     servicePorts:
     - 5173
     vars:
