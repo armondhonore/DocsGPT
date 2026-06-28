@@ -1,16 +1,44 @@
 application:
   name: docsgpt
   pods:
-  - name: app
-    image: ghcr.io/arc53/docsgpt:latest
+  - name: frontend
+    image: arc53/docsgpt-fe:latest
     path: /
     servicePorts:
-    - 5001
+    - 5173
     vars:
+      VITE_API_HOST: <% URL %>
+      VITE_API_STREAMING: "true"
+  - name: backend
+    image: arc53/docsgpt:latest
+    path: /api
+    servicePorts:
+    - 7091
+    vars:
+      CELERY_BROKER_URL: redis://docsgpt-redis.pod:6379/0
+      CELERY_RESULT_BACKEND: redis://docsgpt-redis.pod:6379/1
+      CACHE_REDIS_URL: redis://docsgpt-redis.pod:6379/2
+      POSTGRES_URI: postgresql://docsgpt:${POSTGRES_PASSWORD}@docsgpt-postgres.pod:5432/docsgpt
       LLM_PROVIDER: openai
       API_KEY: placeholder
       EMBEDDINGS_KEY: placeholder
     volumes:
     - name: docsgpt-data
-      mountPath: /app/application/uploads
+      mountPath: /app/indexes
+      size: 5Gi
+  - name: docsgpt-redis
+    image: redis:6-alpine
+    servicePorts:
+    - 6379
+  - name: docsgpt-postgres
+    image: postgres:16-alpine
+    servicePorts:
+    - 5432
+    vars:
+      POSTGRES_USER: docsgpt
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: docsgpt
+    volumes:
+    - name: docsgpt-pgdata
+      mountPath: /var/lib/postgresql/data
       size: 5Gi
